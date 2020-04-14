@@ -1,4 +1,6 @@
 
+from copy import copy
+
 class RangeIterator:
 
     def __init__(self, container, start, end, step=1):
@@ -13,7 +15,7 @@ class RangeIterator:
 
 class SequenceView:
 
-    def __init__(self, container, start=0, end=-1):
+    def __init__(self, container, start=0, end=-1, step=1):
 
         if end < 0:
             end += len(container)
@@ -21,16 +23,36 @@ class SequenceView:
         self._container = container
         self.__start = start
         self.__end = end
+        self.__step = step
         self.__qtd = 1 + end - start
 
     def __iter__(self):
-        return RangeIterator(self._container, self.__start, self.__end)
+        return RangeIterator(self._container, self.__start,
+                             self.__end, self.__step)
 
     def __reversed__(self):
         return RangeIterator(self._container, self.__end - 1,
-                             self.__start - 1, -1)
+                             self.__start - 1, -self.__step)
 
     def __getitem__(self, index):
+
+        if isinstance(index, slice):
+            new_view = copy(self)
+
+            if index.stop is not None:
+                if index.stop < 0:
+                    new_view.__end += index.stop
+                else:
+                    new_view.__end += new_view.__start + index.stop
+
+            if index.start is not None:
+                new_view.__start += index.start
+
+            if index.step is not None:
+                new_view.__step *= index.step
+
+            return new_view
+
         return self._container[self.mapIndexToContainer(index)]
 
     def mapIndexToContainer(self, index, raise_error=False):
@@ -58,3 +80,7 @@ class MutableSequenceView(SequenceView):
 
     def __setitem__(self, index, value):
         self._container[self.mapIndexToContainer(index)] = value
+
+s = SequenceView(list(range(100)), 5, 30)
+
+print(list(s[2::2]))
