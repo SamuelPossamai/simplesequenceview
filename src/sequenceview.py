@@ -80,7 +80,3 @@ class MutableSequenceView(SequenceView):
 
     def __setitem__(self, index, value):
         self._container[self.mapIndexToContainer(index)] = value
-
-s = SequenceView(list(range(100)), 5, 30)
-
-print(list(s[2::2]))
