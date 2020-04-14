@@ -18,20 +18,20 @@ class SequenceView:
         if end < 0:
             end += len(container)
 
-        self.__container = container
+        self._container = container
         self.__start = start
         self.__end = end
         self.__qtd = 1 + end - start
 
     def __iter__(self):
-        return RangeIterator(self.__container, self.__start, self.__end)
+        return RangeIterator(self._container, self.__start, self.__end)
 
     def __reversed__(self):
-        return RangeIterator(self.__container, self.__end - 1,
+        return RangeIterator(self._container, self.__end - 1,
                              self.__start - 1, -1)
 
     def __getitem__(self, index):
-        return self.__container[self.mapIndexToContainer(index)]
+        return self._container[self.mapIndexToContainer(index)]
 
     def mapIndexToContainer(self, index, raise_error=False):
         if index < 0:
@@ -45,7 +45,7 @@ class SequenceView:
 
     def mapIndexFromContainer(self, index, raise_error=False):
         if index < 0:
-            index += len(self.__container)
+            index += len(self._container)
 
         if self.__start <= index < self.__end:
             return index - self.__start
@@ -53,3 +53,8 @@ class SequenceView:
         if raise_error:
             raise IndexError('sequence index out of range')
         return None
+
+class MutableSequenceView(SequenceView):
+
+    def __setitem__(self, index, value):
+        self._container[self.mapIndexToContainer(index)] = value
