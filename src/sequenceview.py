@@ -21,18 +21,18 @@ class SequenceView:
             end += len(container)
 
         self._container = container
-        self.__start = start
-        self.__end = end
-        self.__step = step
-        self.__qtd = 1 + end - start
+        self._start = start
+        self._end = end
+        self._step = step
+        self._qtd = 1 + end - start
 
     def __iter__(self):
-        return RangeIterator(self._container, self.__start,
-                             self.__end, self.__step)
+        return RangeIterator(self._container, self._start,
+                             self._end, self._step)
 
     def __reversed__(self):
-        return RangeIterator(self._container, self.__end - 1,
-                             self.__start - 1, -self.__step)
+        return RangeIterator(self._container, self._end - 1,
+                             self._start - 1, -self._step)
 
     def __getitem__(self, index):
 
@@ -57,26 +57,49 @@ class SequenceView:
 
     def mapIndexToContainer(self, index, raise_error=False):
         if index < 0:
-            index += self.__qtd
+            index += self._qtd
 
-        if index >= self.__qtd:
+        if index >= self._qtd:
             if raise_error:
                 raise IndexError('sequence view index out of range')
             return None
-        return self.__start + index
+        return self._start + index
 
     def mapIndexFromContainer(self, index, raise_error=False):
         if index < 0:
             index += len(self._container)
 
-        if self.__start <= index < self.__end:
-            return index - self.__start
+        if self._start <= index < self._end:
+            return index - self._start
 
         if raise_error:
             raise IndexError('sequence index out of range')
         return None
 
+    def __len__(self):
+        return self._qtd
+
 class MutableSequenceView(SequenceView):
 
     def __setitem__(self, index, value):
+
+        if isinstance(index, slice):
+
+            if index.start is None:
+                start = self._start
+            else:
+                start = mapIndexToContainer(index.start)
+
+            if index.end is None:
+                end = self._end
+            else:
+                end = mapIndexToContainer(index.end)
+
+            if index.step is None:
+                step = self._step
+            else:
+                step = self._step*index.step
+
+            self._container[start:end:step] = value
+
         self._container[self.mapIndexToContainer(index)] = value
