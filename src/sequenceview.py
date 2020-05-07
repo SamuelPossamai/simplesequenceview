@@ -15,10 +15,34 @@ class RangeIterator:
 
 class SequenceView:
 
+    @staticmethod
+    def __decorateGetItem(self, index):
+        if not isinstace(index, slice):
+            return super().__getitem__(index)
+
+        return SequenceView(self, index.start, index.stop, index.step)
+
+    @staticmethod
+    def decorate(self, seq_cls):
+
+        new_class = type(seq_cls.__name__, (seq_cls,), {})
+
+        new_class.__getitem__ = SequenceView.__decorateGetItem
+
+        return new_class
+
     def __init__(self, container, start=0, end=-1, step=1):
 
-        if end < 0:
+        if start is None:
+            start = 0
+
+        if end is None:
+            end = len(container)
+        elif end < 0:
             end += len(container)
+
+        if step is None:
+            step = 1
 
         self._container = container
         self._start = start
