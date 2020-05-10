@@ -16,14 +16,14 @@ class RangeIterator:
 class SequenceView:
 
     @staticmethod
-    def __decorateGetItem(self, index):
-        if not isinstace(index, slice):
+    def __decorateGetItem(container, index):
+        if not isinstance(index, slice):
             return super().__getitem__(index)
 
-        return SequenceView(self, index.start, index.stop, index.step)
+        return SequenceView(container, index.start, index.stop, index.step)
 
     @staticmethod
-    def decorate(self, seq_cls):
+    def decorate(seq_cls):
 
         new_class = type(seq_cls.__name__, (seq_cls,), {})
 
@@ -65,15 +65,15 @@ class SequenceView:
 
             if index.stop is not None:
                 if index.stop < 0:
-                    new_view.__end += index.stop
+                    new_view._end += index.stop
                 else:
-                    new_view.__end += new_view.__start + index.stop
+                    new_view._end += new_view._start + index.stop
 
             if index.start is not None:
-                new_view.__start += index.start
+                new_view._start += index.start
 
             if index.step is not None:
-                new_view.__step *= index.step
+                new_view._step *= index.step
 
             return new_view
 
@@ -112,12 +112,12 @@ class MutableSequenceView(SequenceView):
             if index.start is None:
                 start = self._start
             else:
-                start = mapIndexToContainer(index.start)
+                start = self.mapIndexToContainer(index.start)
 
             if index.end is None:
                 end = self._end
             else:
-                end = mapIndexToContainer(index.end)
+                end = self.mapIndexToContainer(index.end)
 
             if index.step is None:
                 step = self._step
