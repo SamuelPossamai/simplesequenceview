@@ -1,7 +1,8 @@
 
+from collections.abc import Sequence, MutableSequence, Iterator
 from copy import copy
 
-class RangeIterator:
+class RangeIterator(Iterator):
 
     def __init__(self, container, start, end, step=1):
         self.__container = container
@@ -13,7 +14,7 @@ class RangeIterator:
     def __next__(self):
         return self.__container[next(self.__range)]
 
-class SequenceView:
+class SequenceView(Sequence):
 
     @staticmethod
     def __decorateGetItem(container, index):
@@ -103,7 +104,7 @@ class SequenceView:
     def __len__(self):
         return self._qtd
 
-class MutableSequenceView(SequenceView):
+class MutableSequenceView(SequenceView, MutableSequence):
 
     def __setitem__(self, index, value):
 
