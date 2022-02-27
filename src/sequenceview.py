@@ -208,11 +208,3 @@ class MutableSequenceView(SequenceView, MutableSequence):
         self._container.insert(self.mapIndexToContainer(index), obj)
 
         self.restore(True)
-
-orig = list(range(10))
-
-sequence = MutableSequenceView(orig)
-
-sequence[:] = [1, 2, 3, 4]
-
-print(sequence)
